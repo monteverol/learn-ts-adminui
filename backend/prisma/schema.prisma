@@ -1,6 +1,7 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
+  // Prefer default output unless you have a monorepo reason
+  // output = "../generated/prisma"
 }
 
 datasource db {
@@ -8,9 +9,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// =====================
-// ENUMS
-// =====================
 enum UserStatus {
   ACTIVE
   ARCHIVED
@@ -22,70 +20,57 @@ enum JobCategory {
   OTHER
 }
 
-// =====================
-// MODELS
-// =====================
-
 model User {
-  id              String          @id @default(cuid())
+  id              String           @id @default(cuid())
   name            String
   address         String?
   age             Int?
-  status          UserStatus      @default(ACTIVE)
+  status          UserStatus       @default(ACTIVE)
   jobTitle        String?
   jobCategory     JobCategory?
   yearsExperience Int?
   bio             String?
   description     String?
-
-  // Implicit many-to-many
-  tags            Tag[]
+  tags            Tag[]            // implicit M2M
   workExperience  WorkExperience[]
-
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
   deletedAt       DateTime?
+
+  @@index([status])
+  @@index([jobCategory])
+  @@index([deletedAt])
 }
 
 model Tag {
   id    String @id @default(cuid())
   name  String @unique
-
-  // Implicit many-to-many (Prisma will create a `_TagToUser` table)
   users User[]
 }
 
-// =====================
 // WORK EXPERIENCE
-// =====================
-
 model WorkExperience {
-  id             String   @id @default(cuid())
-  user           User     @relation(fields: [userId], references: [id])
-  userId         String
-  company        String
-  position       String
-  // Tip: your seed has "YYYY-MM". Store as first day of month or split into year/month ints.
-  startDate      DateTime
-  endDate        DateTime?
-  isCurrent      Boolean  @default(false)
-  description    String?
-
+  id          String    @id @default(cuid())
+  user        User      @relation(fields: [userId], references: [id])
+  userId      String
+  company     String
+  position    String
+  startDate   DateTime
+  endDate     DateTime?
+  isCurrent   Boolean   @default(false)
+  description String?
   responsibilities Responsibility[]
 
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   @@index([userId])
 }
 
-// =====================
 // RESPONSIBILITIES
-// =====================
-
 model Responsibility {
-  id               String         @id @default(cuid())
-  workExperience   WorkExperience @relation(fields: [workExperienceId], references: [id])
+  id               String          @id @default(cuid())
+  workExperience   WorkExperience  @relation(fields: [workExperienceId], references: [id])
   workExperienceId String
   title            String
 

@@ -2,10 +2,10 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-import { requestLogger } from './middlewares/requestLogger';
-import { errorHandler } from './middlewares/error.middleware';
-import { config } from './config';
-import userRouter from './modules/user/user.router';
+import { requestLogger } from './middlewares/requestLogger.js';
+import { errorHandler } from './middlewares/error.middleware.js';
+import { config } from './config/index.js';
+import userRouter from './modules/user/user.router.js';
 
 const app = express();
 
