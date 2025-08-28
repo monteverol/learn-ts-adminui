@@ -1,33 +1,39 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import React from 'react'
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
+import Main from "./components/layout/Main"
+import Users from "./pages/Users"
+import Home from "./pages/Home"
+import Tables from "./pages/Tables"
+import Billing from "./pages/Billing"
+import Profile from "./pages/Profile"
+import SignIn from "./pages/SignIn"
+import SignUp from "./pages/SignUp"
+import Rtl from "./pages/Rtl"
 
-function App() {
-  const [count, setCount] = useState(0)
-
+function App(): React.JSX.Element {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div className="App">
+      <BrowserRouter>
+        <Routes>
+          <Route path="/sign-in" element={<SignIn />} />
+          <Route path="/sign-up" element={<SignUp />} />
+          <Route path="/*" element={
+            <Main>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/dashboard" element={<Home />} />
+                <Route path="/tables" element={<Tables />} />
+                <Route path="/billing" element={<Billing />} />
+                <Route path="/rtl" element={<Rtl />} />
+                <Route path="/users" element={<Users />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="*" element={<Navigate to="/dashboard" replace />} />
+              </Routes>
+            </Main>
+          } />
+        </Routes>
+      </BrowserRouter>
+    </div>
   )
 }
 

@@ -14,7 +14,7 @@ enum UserStatus {
   ARCHIVED
 }
 
-enum JobCategory {
+enum JobCategoryType {
   MAINTENANCE
   OPERATIONS
   OTHER
@@ -27,7 +27,7 @@ model User {
   age             Int?
   status          UserStatus       @default(ACTIVE)
   jobTitle        String?
-  jobCategory     JobCategory?
+  jobCategory     JobCategoryType?
   yearsExperience Int?
   bio             String?
   description     String?
@@ -38,7 +38,6 @@ model User {
   deletedAt       DateTime?
 
   @@index([status])
-  @@index([jobCategory])
   @@index([deletedAt])
 }
 
@@ -75,4 +74,36 @@ model Responsibility {
   title            String
 
   @@index([workExperienceId])
+}
+
+enum JobCategoryStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+model JobCategory {
+  id          String            @id @default(cuid())
+  name        String            @unique
+  description String?
+  status      JobCategoryStatus @default(ACTIVE)
+  jobsCount   Int               @default(0)
+  avgPrice    Float?
+  icon        String?
+  color       String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  deletedAt   DateTime?
+  tags        JobCategoryTag[]
+
+  @@index([status])
+  @@index([deletedAt])
+}
+
+model JobCategoryTag {
+  id            String      @id @default(cuid())
+  name          String
+  jobCategory   JobCategory @relation(fields: [jobCategoryId], references: [id])
+  jobCategoryId String
+
+  @@index([jobCategoryId])
 }

@@ -1,14 +1,13 @@
-import { Router } from 'express';
-import { createUserSchema, updateUserSchema } from './user.schemas.js'; // ← camelCase + .js
+import { NextFunction, Router, Request, Response } from 'express';
+import { createUserSchema, updateUserSchema } from './user.schemas.js';
 import * as controller from './user.controller.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
 
-// If you have a validate middleware:
 import { z } from 'zod';
-const validate = (schema: z.ZodSchema) => (req, _res, next) => {
+const validate = (schema: z.ZodSchema) => (req: Request, _res: Response, next: NextFunction) => {
   const r = schema.safeParse(req.body);
   if (!r.success) return next(r.error);
-  req.body = r.data;
+  (req as any).body = r.data;
   next();
 };
 

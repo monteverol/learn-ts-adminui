@@ -6,6 +6,7 @@ import { requestLogger } from './middlewares/requestLogger.js';
 import { errorHandler } from './middlewares/error.middleware.js';
 import { config } from './config/index.js';
 import userRouter from './modules/user/user.router.js';
+import jobCategoryRouter from './modules/job-category/job-category.router.js';
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use(rateLimit({ windowMs: 60_000, max: 120 })); // tune per needs
 app.get('/health', (_req, res) => res.json({ ok: true }));
 
 app.use('/api/users', userRouter);
+app.use('/api/job-categories', jobCategoryRouter);
 
 app.use(errorHandler);
 

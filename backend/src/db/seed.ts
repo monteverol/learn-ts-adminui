@@ -1,5 +1,5 @@
 import { prisma } from './client.js';
-import { UserStatus, JobCategory } from '@prisma/client';
+import { UserStatus, JobCategoryType } from '@prisma/client';
 
 const seed = [
   {
@@ -133,11 +133,11 @@ const parseYYYYMM = (ym: string | null) =>
 const toStatus = (s: string): UserStatus =>
   s === 'ARCHIVED' ? UserStatus.ARCHIVED : UserStatus.ACTIVE;
 
-const toJobCategory = (c: string | null | undefined): JobCategory | null => {
+const toJobCategory = (c: string | null | undefined): JobCategoryType | null => {
   if (!c) return null;
-  if (c === 'MAINTENANCE') return JobCategory.MAINTENANCE;
-  if (c === 'OPERATIONS') return JobCategory.OPERATIONS;
-  return JobCategory.OTHER;
+  if (c === 'MAINTENANCE') return JobCategoryType.MAINTENANCE;
+  if (c === 'OPERATIONS') return JobCategoryType.OPERATIONS;
+  return JobCategoryType.OTHER;
 };
 
 async function run() {
