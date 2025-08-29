@@ -28,14 +28,16 @@ export const UserService = {
     
     // Handle tags - create or connect existing ones
     const tagIds: string[] = [];
-    if (tags && Array.isArray(tags)) {
+    if (Array.isArray(tags) && tags.length > 0) {
       for (const tagName of tags) {
-        const tag = await prisma.tag.upsert({
-          where: { name: tagName },
-          update: {},
-          create: { name: tagName },
-        });
-        tagIds.push(tag.id);
+        if (tagName && typeof tagName === 'string') {
+          const tag = await prisma.tag.upsert({
+            where: { name: tagName },
+            update: {},
+            create: { name: tagName },
+          });
+          tagIds.push(tag.id);
+        }
       }
     }
 
@@ -71,9 +73,9 @@ export const UserService = {
           },
         });
 
-        if (wx.responsibilities?.length) {
+        if (Array.isArray(wx.responsibilities) && wx.responsibilities.length > 0) {
           await prisma.responsibility.createMany({
-            data: wx.responsibilities.map((title: string) => ({
+            data: wx.responsibilities.filter(title => title && typeof title === 'string').map((title: string) => ({
               workExperienceId: createdWX.id,
               title,
             })),
@@ -117,14 +119,16 @@ export const UserService = {
     // Handle tags if provided
     if (tags !== undefined) {
       const tagIds: string[] = [];
-      if (Array.isArray(tags)) {
+      if (Array.isArray(tags) && tags.length > 0) {
         for (const tagName of tags) {
-          const tag = await prisma.tag.upsert({
-            where: { name: tagName },
-            update: {},
-            create: { name: tagName },
-          });
-          tagIds.push(tag.id);
+          if (tagName && typeof tagName === 'string') {
+            const tag = await prisma.tag.upsert({
+              where: { name: tagName },
+              update: {},
+              create: { name: tagName },
+            });
+            tagIds.push(tag.id);
+          }
         }
       }
       userData.tags = { set: [], connect: tagIds.map((id) => ({ id })) };
@@ -166,9 +170,9 @@ export const UserService = {
             },
           });
 
-          if (wx.responsibilities?.length) {
+          if (Array.isArray(wx.responsibilities) && wx.responsibilities.length > 0) {
             await prisma.responsibility.createMany({
-              data: wx.responsibilities.map((title: string) => ({
+              data: wx.responsibilities.filter(title => title && typeof title === 'string').map((title: string) => ({
                 workExperienceId: createdWX.id,
                 title,
               })),

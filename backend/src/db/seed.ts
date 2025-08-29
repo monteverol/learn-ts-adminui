@@ -1,5 +1,5 @@
 import { prisma } from './client.js';
-import { UserStatus, JobCategoryType } from '@prisma/client';
+import { UserStatus, JobCategoryType, JobCategoryStatus } from '@prisma/client';
 
 const seed = [
   {
@@ -140,7 +140,123 @@ const toJobCategory = (c: string | null | undefined): JobCategoryType | null => 
   return JobCategoryType.OTHER;
 };
 
+const jobCategories = [
+  {
+    id: "jc1",
+    name: "Plumbing",
+    description: "Water pipes, drainage, and fixture repairs",
+    status: "ACTIVE",
+    jobsCount: 245,
+    avgPrice: 85,
+    tags: ["urgent", "licensed", "residential"],
+    icon: "🔧",
+    color: "#1890ff",
+    createdAt: "2024-01-15T00:00:00.000Z"
+  },
+  {
+    id: "jc2",
+    name: "Electrical",
+    description: "Electrical installations and repairs",
+    status: "ACTIVE",
+    jobsCount: 189,
+    avgPrice: 120,
+    tags: ["certified", "emergency", "commercial"],
+    icon: "⚡",
+    color: "#faad14",
+    createdAt: "2024-01-10T00:00:00.000Z"
+  },
+  {
+    id: "jc3",
+    name: "House Cleaning",
+    description: "Professional house and office cleaning services",
+    status: "ACTIVE",
+    jobsCount: 456,
+    avgPrice: 65,
+    tags: ["regular", "deep-clean", "eco-friendly"],
+    icon: "🏠",
+    color: "#52c41a",
+    createdAt: "2024-01-08T00:00:00.000Z"
+  },
+  {
+    id: "jc4",
+    name: "Painting",
+    description: "Interior and exterior painting services",
+    status: "ARCHIVED",
+    jobsCount: 78,
+    avgPrice: 95,
+    tags: ["interior", "exterior", "commercial"],
+    icon: "🎨",
+    color: "#722ed1",
+    createdAt: "2024-01-05T00:00:00.000Z"
+  },
+  {
+    id: "jc5",
+    name: "Moving Services",
+    description: "Relocation and moving assistance",
+    status: "ACTIVE",
+    jobsCount: 134,
+    avgPrice: 150,
+    tags: ["local", "long-distance", "packing"],
+    icon: "🚛",
+    color: "#eb2f96",
+    createdAt: "2024-01-01T00:00:00.000Z"
+  }
+] as const;
+
+const toJobCategoryStatus = (s: string): JobCategoryStatus =>
+  s === 'ARCHIVED' ? JobCategoryStatus.ARCHIVED : JobCategoryStatus.ACTIVE;
+
 async function run() {
+  // Seed job categories first
+  for (const jc of jobCategories) {
+    // Upsert job category by id
+    const jobCategory = await prisma.jobCategory.upsert({
+      where: { id: jc.id },
+      update: {
+        name: jc.name,
+        description: jc.description,
+        status: toJobCategoryStatus(jc.status),
+        jobsCount: jc.jobsCount,
+        avgPrice: jc.avgPrice,
+        icon: jc.icon,
+        color: jc.color,
+      },
+      create: {
+        id: jc.id,
+        name: jc.name,
+        description: jc.description,
+        status: toJobCategoryStatus(jc.status),
+        jobsCount: jc.jobsCount,
+        avgPrice: jc.avgPrice,
+        icon: jc.icon,
+        color: jc.color,
+        createdAt: new Date(jc.createdAt),
+      },
+    });
+
+    // Replace job category tags (simple approach for seed)
+    const existingTags = await prisma.jobCategoryTag.findMany({
+      where: { jobCategoryId: jobCategory.id },
+      select: { id: true },
+    });
+    if (existingTags.length) {
+      await prisma.jobCategoryTag.deleteMany({
+        where: { id: { in: existingTags.map((t) => t.id) } },
+      });
+    }
+
+    // Add tags
+    if (jc.tags?.length) {
+      await prisma.jobCategoryTag.createMany({
+        data: jc.tags.map((tagName: string) => ({
+          name: tagName,
+          jobCategoryId: jobCategory.id,
+        })),
+      });
+    }
+  }
+
+  // Seed users
   for (const u of seed) {
     // Ensure tags exist and collect IDs
     const tagIds: string[] = [];

@@ -7,10 +7,10 @@ interface CreateUserData {
   name: string;
   age?: number;
   address?: string;
-  status: string;
+  status: 'ACTIVE' | 'ARCHIVED';
   tags?: string[];
   jobTitle?: string;
-  jobCategory?: string;
+  jobCategory?: 'MAINTENANCE' | 'OPERATIONS' | 'OTHER';
   yearsExperience?: number;
   bio?: string;
   description?: string;

@@ -63,7 +63,7 @@ export default function EditUserModal({
         // Professional
         jobTitle: user.jobTitle ?? "",
         jobCategory: user.jobCategory ?? "OTHER",
-        yearsExperience: user.yearsExperience ?? 0,
+        yearsExperience: user.yearsExperience ?? undefined,
         bio: user.bio ?? "",
         description: user.description ?? "",
         // Work Experience with converted dates
@@ -85,14 +85,17 @@ export default function EditUserModal({
       // Convert dayjs objects back to string format for storage
       const formattedValues = {
         ...values,
+        // Ensure proper data types
+        age: values.age ? Number(values.age) : undefined,
+        yearsExperience: values.yearsExperience ? Number(values.yearsExperience) : undefined,
         workExperience: (values.workExperience || []).map((exp: any) => ({
-          company: exp.company,
-          position: exp.position,
-          startDate: exp.startDate && dayjs.isDayjs(exp.startDate) ? exp.startDate.format('YYYY-MM') : exp.startDate,
-          endDate: exp.endDate && dayjs.isDayjs(exp.endDate) ? exp.endDate.format('YYYY-MM') : exp.endDate,
-          isCurrent: exp.isCurrent,
-          description: exp.description,
-          responsibilities: exp.responsibilities,
+          company: exp.company || '',
+          position: exp.position || '',
+          startDate: exp.startDate && dayjs.isDayjs(exp.startDate) ? exp.startDate.format('YYYY-MM') : exp.startDate || '',
+          endDate: exp.endDate && dayjs.isDayjs(exp.endDate) ? exp.endDate.format('YYYY-MM') : (exp.endDate || null),
+          isCurrent: Boolean(exp.isCurrent),
+          description: exp.description || '',
+          responsibilities: exp.responsibilities || [],
         }))
       };
       

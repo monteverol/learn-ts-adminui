@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { UserAddOutlined, SearchOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { UserAddOutlined, SearchOutlined, EditOutlined } from '@ant-design/icons';
 import { 
   Input, 
   Button, 
@@ -18,15 +18,8 @@ import {
 import useGetAllUsers from "../hooks/users/useGetAllUsers";
 import useCreateUser from "../hooks/users/useCreateUser";
 import useUpdateUser from "../hooks/users/useUpdateUser";
-import useDeleteUser from "../hooks/users/useDeleteUser";
 import AddUserModal from "../components/modals/AddUserModal";
 import EditUserModal from "../components/modals/EditUserModal";
-
-const { Title } = Typography;
-
-const STATUS_OPTIONS = ["ACTIVE", "ARCHIVED"];
-const JOB_CATEGORIES = ["MAINTENANCE", "OPERATIONS", "OTHER"];
-
 interface Tag {
   id: string;
   name: string;
@@ -35,22 +28,29 @@ interface Tag {
 interface User {
   id: string;
   name: string;
-  status: string;
   age?: number;
   address?: string;
+  status: 'ACTIVE' | 'ARCHIVED';
   jobTitle?: string;
-  jobCategory?: string;
+  jobCategory?: 'MAINTENANCE' | 'OPERATIONS' | 'OTHER';
   yearsExperience?: number;
-  tags?: Tag[];
   bio?: string;
   description?: string;
+  tags: Tag[];
+  workExperience: any[];
+  createdAt: string;
+  updatedAt: string;
 }
+
+const { Title } = Typography;
+
+const STATUS_OPTIONS = ["ACTIVE", "ARCHIVED"];
+const JOB_CATEGORIES = ["MAINTENANCE", "OPERATIONS", "OTHER"];
 
 function Users(): React.JSX.Element {
   const { users, loading, error, filter, updateFilter, meta, setPage, setLimit, refetch } = useGetAllUsers();
   const { createUser, loading: createLoading } = useCreateUser();
   const { updateUser, loading: updateLoading } = useUpdateUser();
-  const { deleteUser, loading: deleteLoading } = useDeleteUser();
   
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
@@ -71,7 +71,7 @@ function Users(): React.JSX.Element {
         user.address?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         user.jobTitle?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         user.bio?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+        user.tags?.some(tag => tag.name.toLowerCase().includes(searchQuery.toLowerCase()));
       
       const matchesStatus = !statusFilter || user.status === statusFilter;
       const matchesCategory = !categoryFilter || user.jobCategory === categoryFilter;
@@ -102,15 +102,6 @@ function Users(): React.JSX.Element {
       await updateUser(selectedUser.id, userData);
       setEditModalOpen(false);
       setSelectedUser(undefined);
-      refetch();
-    } catch (error) {
-      // Error message is handled in the hook
-    }
-  };
-
-  const handleDeleteUser = async (userId: string) => {
-    try {
-      await deleteUser(userId);
       refetch();
     } catch (error) {
       // Error message is handled in the hook
@@ -184,16 +175,16 @@ function Users(): React.JSX.Element {
       key: "tags",
       dataIndex: "tags",
       width: 200,
-      render: (tags: string[] = []) => {
-        if (!tags.length) return '-';
+      render: (tags: any[] = []) => {
+        if (!tags || !tags.length) return '-';
         
         const visibleTags = tags.slice(0, 2);
         const remainingCount = tags.length - 2;
         
         return (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-            {visibleTags.map((tag, i) => (
-              <Tag color="green" key={`${tag.id}-${i}`} style={{ margin: 0 }}>
+            {visibleTags.map((tag) => (
+              <Tag color="green" key={tag.id} style={{ margin: 0 }}>
                 {tag.name.toUpperCase()}
               </Tag>
             ))}
@@ -222,22 +213,6 @@ function Users(): React.JSX.Element {
           >
             Edit
           </Button>
-          <Popconfirm
-            title="Are you sure you want to delete this user?"
-            onConfirm={() => handleDeleteUser(record.id)}
-            okText="Yes"
-            cancelText="No"
-            okButtonProps={{ danger: true }}
-          >
-            <Button 
-              type="link" 
-              danger 
-              icon={<DeleteOutlined />}
-              disabled={deleteLoading}
-            >
-              Delete
-            </Button>
-          </Popconfirm>
           {record.status === "ARCHIVED" ? (
             <Popconfirm
               title="Activate user?"

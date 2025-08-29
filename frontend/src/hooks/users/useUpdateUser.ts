@@ -7,10 +7,10 @@ interface UpdateUserData {
   name?: string;
   age?: number;
   address?: string;
-  status?: string;
+  status?: 'ACTIVE' | 'ARCHIVED';
   tags?: string[];
   jobTitle?: string;
-  jobCategory?: string;
+  jobCategory?: 'MAINTENANCE' | 'OPERATIONS' | 'OTHER';
   yearsExperience?: number;
   bio?: string;
   description?: string;
@@ -33,7 +33,17 @@ export default function useUpdateUser() {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        console.error('Server error response:', errorData);
+        
+        // Handle validation errors specially
+        if (response.status === 400 && errorData.details) {
+          const validationMessages = errorData.details.map((detail: any) => 
+            `${detail.path}: ${detail.message}`
+          ).join(', ');
+          throw new Error(`Validation failed: ${validationMessages}`);
+        }
+        
+        throw new Error(errorData.message || errorData.error || `HTTP error! status: ${response.status}`);
       }
 
       const updatedUser = await response.json();

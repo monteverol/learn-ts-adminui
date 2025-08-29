@@ -1,6 +1,45 @@
 import { useState, useRef, useCallback, useEffect } from "react"
 import { backendURL } from "../../config/config";
 
+interface Tag {
+  id: string;
+  name: string;
+}
+
+interface Responsibility {
+  id: string;
+  title: string;
+  workExperienceId: string;
+}
+
+interface WorkExperience {
+  id: string;
+  company: string;
+  position: string;
+  startDate: string;
+  endDate: string | null;
+  isCurrent: boolean;
+  description: string | null;
+  responsibilities: Responsibility[];
+}
+
+interface User {
+  id: string;
+  name: string;
+  age?: number;
+  address?: string;
+  status: 'ACTIVE' | 'ARCHIVED';
+  jobTitle?: string;
+  jobCategory?: 'MAINTENANCE' | 'OPERATIONS' | 'OTHER';
+  yearsExperience?: number;
+  bio?: string;
+  description?: string;
+  tags: Tag[];
+  workExperience: WorkExperience[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 interface Filter {
   search: string;
   status: string;
@@ -14,7 +53,7 @@ interface Meta {
 }
 
 const useGetAllUsers = () => {
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState< string | null >(null);
 
