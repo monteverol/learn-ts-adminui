@@ -146,6 +146,24 @@ function Sidenav({ color }: SidenavProps) {
     </svg>,
   ];
 
+  const services = [
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 20 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      key={0}
+    >
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M16 4H4C2.89543 4 2 4.89543 2 6V14C2 15.1046 2.89543 16 4 16H16C17.1046 16 18 15.1046 18 14V6C18 4.89543 17.1046 4 16 4ZM4 6H16V8H4V6ZM4 10V14H16V10H4ZM6 12H12V13H6V12Z"
+        fill={color}
+      ></path>
+    </svg>,
+  ];
+
   const profile = [
     <svg
       width="20"
@@ -306,6 +324,22 @@ function Sidenav({ color }: SidenavProps) {
                   {jobCategory}
                 </span>
                 <span className="label">Job Category</span>
+              </NavLink>
+            ),
+          },
+          {
+            key: "services",
+            label: (
+              <NavLink to="/services">
+                <span
+                  className="icon"
+                  style={{
+                    background: page === "services" ? color : "",
+                  }}
+                >
+                  {services}
+                </span>
+                <span className="label">Services</span>
               </NavLink>
             ),
           },

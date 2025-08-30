@@ -30,7 +30,7 @@ function JobCategories() {
   const { addOpen, editOpen, editingKey, openAdd, closeAdd, openEdit, closeEdit } = useJobCategoryModals();
   const [searchTerm, setSearchTerm] = useState("");
 
-  const debouncedSearchTerm = useDebouncedValue(searchTerm, 300);
+  const { debounced: debouncedSearchTerm } = useDebouncedValue(searchTerm, 300);
 
   // Suppress ResizeObserver warnings
   useEffect(() => {

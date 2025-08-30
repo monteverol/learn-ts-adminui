@@ -11,6 +11,7 @@ import SignUp from "./pages/SignUp"
 import Rtl from "./pages/Rtl"
 import UserProfile from './pages/UserProfile'
 import JobCategories from './pages/JobCategories'
+import Services from './pages/Services'
 
 function App(): React.JSX.Element {
   return (
@@ -29,6 +30,7 @@ function App(): React.JSX.Element {
                 <Route path="/rtl" element={<Rtl />} />
                 <Route path="/users" element={<Users />} />
                 <Route path="/users/:id" element={<UserProfile />} />
+                <Route path="/services" element={<Services />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/job-category" element={<JobCategories />} />
                 <Route path="*" element={<Navigate to="/dashboard" replace />} />

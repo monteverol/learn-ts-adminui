@@ -1,5 +1,5 @@
 import { prisma } from './client.js';
-import { UserStatus, JobCategoryType, JobCategoryStatus } from '@prisma/client';
+import { UserStatus, JobCategoryType, JobCategoryStatus, ServiceStatus, BookingStatus } from '@prisma/client';
 
 const seed = [
   {
@@ -206,6 +206,140 @@ const jobCategories = [
 const toJobCategoryStatus = (s: string): JobCategoryStatus =>
   s === 'ARCHIVED' ? JobCategoryStatus.ARCHIVED : JobCategoryStatus.ACTIVE;
 
+const services = [
+  {
+    id: 'service1',
+    name: 'House Cleaning',
+    category: 'Cleaning',
+    price: 80,
+    duration: '2-3 hours',
+    status: 'ACTIVE',
+    description: 'Deep cleaning service for residential homes',
+    providersCount: 15
+  },
+  {
+    id: 'service2',
+    name: 'Plumbing Repair',
+    category: 'Maintenance',
+    price: 120,
+    duration: '1-2 hours',
+    status: 'ACTIVE',
+    description: 'Professional plumbing repair and maintenance',
+    providersCount: 8
+  },
+  {
+    id: 'service3',
+    name: 'Lawn Mowing',
+    category: 'Gardening',
+    price: 45,
+    duration: '1 hour',
+    status: 'INACTIVE',
+    description: 'Regular lawn maintenance and mowing service',
+    providersCount: 12
+  },
+  {
+    id: 'service4',
+    name: 'Electrical Work',
+    category: 'Maintenance',
+    price: 150,
+    duration: '2-4 hours',
+    status: 'ACTIVE',
+    description: 'Licensed electrical installation and repair',
+    providersCount: 6
+  },
+  {
+    id: 'service5',
+    name: 'Pet Grooming',
+    category: 'Pet Care',
+    price: 60,
+    duration: '1.5 hours',
+    status: 'ACTIVE',
+    description: 'Professional pet grooming and care',
+    providersCount: 10
+  }
+] as const;
+
+const bookings = [
+  {
+    id: 'B001',
+    serviceId: 'service1',
+    serviceName: 'House Cleaning',
+    customerName: 'Sarah Johnson',
+    customerPhone: '+1 (555) 123-4567',
+    date: '2024-09-02',
+    time: '10:00 AM',
+    status: 'CONFIRMED',
+    provider: 'Maria Rodriguez',
+    price: 80,
+    address: '123 Maple St, Springfield'
+  },
+  {
+    id: 'B002',
+    serviceId: 'service2',
+    serviceName: 'Plumbing Repair',
+    customerName: 'Mike Chen',
+    customerPhone: '+1 (555) 234-5678',
+    date: '2024-09-01',
+    time: '2:00 PM',
+    status: 'IN_PROGRESS',
+    provider: 'John Smith',
+    price: 120,
+    address: '456 Oak Ave, Springfield'
+  },
+  {
+    id: 'B003',
+    serviceId: 'service3',
+    serviceName: 'Lawn Mowing',
+    customerName: 'Emily Davis',
+    customerPhone: '+1 (555) 345-6789',
+    date: '2024-08-30',
+    time: '9:00 AM',
+    status: 'COMPLETED',
+    provider: 'Carlos Martinez',
+    price: 45,
+    address: '789 Pine Rd, Springfield'
+  },
+  {
+    id: 'B004',
+    serviceId: 'service4',
+    serviceName: 'Electrical Work',
+    customerName: 'Robert Wilson',
+    customerPhone: '+1 (555) 456-7890',
+    date: '2024-09-03',
+    time: '11:00 AM',
+    status: 'PENDING',
+    provider: 'David Lee',
+    price: 150,
+    address: '321 Elm St, Springfield'
+  },
+  {
+    id: 'B005',
+    serviceId: 'service5',
+    serviceName: 'Pet Grooming',
+    customerName: 'Lisa Thompson',
+    customerPhone: '+1 (555) 567-8901',
+    date: '2024-08-29',
+    time: '3:00 PM',
+    status: 'CANCELLED',
+    provider: 'Jennifer Brown',
+    price: 60,
+    address: '654 Birch Ln, Springfield'
+  }
+] as const;
+
+const toServiceStatus = (s: string): ServiceStatus =>
+  s === 'INACTIVE' ? ServiceStatus.INACTIVE : ServiceStatus.ACTIVE;
+
+const toBookingStatus = (s: string): BookingStatus => {
+  switch (s) {
+    case 'CONFIRMED': return BookingStatus.CONFIRMED;
+    case 'IN_PROGRESS': return BookingStatus.IN_PROGRESS;
+    case 'COMPLETED': return BookingStatus.COMPLETED;
+    case 'CANCELLED': return BookingStatus.CANCELLED;
+    default: return BookingStatus.PENDING;
+  }
+};
+
 async function run() {
   // Seed job categories first
   for (const jc of jobCategories) {
@@ -337,6 +471,64 @@ async function run() {
         });
       }
     }
+  }
+
+  // Seed services
+  for (const service of services) {
+    await prisma.service.upsert({
+      where: { id: service.id },
+      update: {
+        name: service.name,
+        category: service.category,
+        price: service.price,
+        duration: service.duration,
+        status: toServiceStatus(service.status),
+        description: service.description,
+        providersCount: service.providersCount,
+      },
+      create: {
+        id: service.id,
+        name: service.name,
+        category: service.category,
+        price: service.price,
+        duration: service.duration,
+        status: toServiceStatus(service.status),
+        description: service.description,
+        providersCount: service.providersCount,
+      },
+    });
+  }
+
+  // Seed bookings
+  for (const booking of bookings) {
+    await prisma.booking.upsert({
+      where: { id: booking.id },
+      update: {
+        serviceId: booking.serviceId,
+        serviceName: booking.serviceName,
+        customerName: booking.customerName,
+        customerPhone: booking.customerPhone,
+        date: booking.date,
+        time: booking.time,
+        status: toBookingStatus(booking.status),
+        provider: booking.provider,
+        price: booking.price,
+        address: booking.address,
+      },
+      create: {
+        id: booking.id,
+        serviceId: booking.serviceId,
+        serviceName: booking.serviceName,
+        customerName: booking.customerName,
+        customerPhone: booking.customerPhone,
+        date: booking.date,
+        time: booking.time,
+        status: toBookingStatus(booking.status),
+        provider: booking.provider,
+        price: booking.price,
+        address: booking.address,
+      },
+    });
   }
 }
 

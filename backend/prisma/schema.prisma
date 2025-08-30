@@ -107,3 +107,58 @@ model JobCategoryTag {
 
   @@index([jobCategoryId])
 }
+
+enum ServiceStatus {
+  ACTIVE
+  INACTIVE
+}
+
+model Service {
+  id             String        @id @default(cuid())
+  name           String
+  category       String
+  price          Float
+  duration       String
+  status         ServiceStatus @default(ACTIVE)
+  description    String?
+  providersCount Int           @default(0)
+  bookings       Booking[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  deletedAt      DateTime?
+
+  @@index([status])
+  @@index([category])
+  @@index([deletedAt])
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model Booking {
+  id           String        @id @default(cuid())
+  service      Service       @relation(fields: [serviceId], references: [id])
+  serviceId    String
+  serviceName  String
+  customerName String
+  customerPhone String
+  date         String
+  time         String
+  status       BookingStatus @default(PENDING)
+  provider     String
+  price        Float
+  address      String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  deletedAt    DateTime?
+
+  @@index([serviceId])
+  @@index([status])
+  @@index([date])
+  @@index([deletedAt])
+}
